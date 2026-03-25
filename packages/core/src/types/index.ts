@@ -5,7 +5,15 @@ export type AgentRole =
   | 'test-runner'
   | 'bug-analyzer'
   | 'coverage-agent'
-  | 'review-agent';
+  | 'review-agent'
+  | 'healer-agent'
+  | 'playwright-agent'
+  | 'security-agent'
+  | 'performance-agent'
+  | 'accessibility-agent'
+  | 'chaos-agent'
+  | 'mutation-agent'
+  | 'contract-agent';
 
 export type AgentStatus = 'idle' | 'running' | 'error' | 'completed';
 
@@ -384,6 +392,249 @@ export interface KnowledgeQuery {
   tags?: string[];
   limit?: number;
   minSimilarity?: number;
+}
+
+// ─── Healer Types ─────────────────────────────────────────────────────────────
+
+export type FailureClassification =
+  | 'selector_stale'
+  | 'timing_race'
+  | 'env_flakiness'
+  | 'logic_change'
+  | 'data_dependency'
+  | 'unknown';
+
+export interface HealingSuggestion {
+  fix: string;
+  confidence: number;
+  strategy: string;
+  patch?: Record<string, unknown>;
+}
+
+export interface HealingStats {
+  totalAttempts: number;
+  successRate: number;
+  topStrategies: Array<{ strategy: string; count: number; successRate: number }>;
+}
+
+// ─── Security Types ───────────────────────────────────────────────────────────
+
+export type SecuritySeverity = 'critical' | 'high' | 'medium' | 'low';
+
+export interface SecurityFinding {
+  severity: SecuritySeverity;
+  category: string;
+  location: { file?: string; line?: number; column?: number };
+  description: string;
+  recommendation: string;
+  owaspCategory?: string;
+}
+
+export interface SecurityReport {
+  findings: SecurityFinding[];
+  summary: string;
+  riskScore: number;
+  scannedAt: Date;
+}
+
+// ─── Performance Types ────────────────────────────────────────────────────────
+
+export interface PerformanceAnalysis {
+  timeComplexity: string;
+  spaceComplexity: string;
+  issues: PerformanceIssue[];
+  optimizations: Optimization[];
+}
+
+export interface PerformanceIssue {
+  type: 'n-plus-one' | 'memory-leak' | 'blocking-operation' | 'inefficient-algorithm' | 'other';
+  description: string;
+  location: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+}
+
+export interface Optimization {
+  description: string;
+  impact: 'high' | 'medium' | 'low';
+  before?: string;
+  after?: string;
+}
+
+export interface BenchmarkResult {
+  iterations: number;
+  p50: number;
+  p95: number;
+  p99: number;
+  mean: number;
+  min: number;
+  max: number;
+}
+
+// ─── Accessibility Types ──────────────────────────────────────────────────────
+
+export type A11ySeverity = 'must-fix' | 'should-fix' | 'nice-to-have';
+
+export interface A11yFinding {
+  criterion: string;
+  severity: A11ySeverity;
+  description: string;
+  element?: string;
+  suggestion: string;
+  fixCode?: string;
+}
+
+export interface A11yReport {
+  findings: A11yFinding[];
+  score: number;
+  level: 'A' | 'AA' | 'AAA';
+  summary: string;
+}
+
+// ─── Chaos Types ──────────────────────────────────────────────────────────────
+
+export type ChaosIntensity = 'mild' | 'moderate' | 'severe';
+
+export interface ChaosConfig {
+  experiments: ChaosExperiment[];
+  duration: number;
+  targetResilience: number;
+}
+
+export interface ChaosExperiment {
+  type: 'network-latency' | 'network-failure' | 'cpu-stress' | 'memory-pressure' | 'random-error' | 'time-skew';
+  config: Record<string, unknown>;
+  description: string;
+}
+
+export interface ChaosReport {
+  experiments: Array<ChaosExperiment & { result: string; impact: string }>;
+  resilienceScore: number;
+  recommendations: string[];
+}
+
+// ─── Mutation Testing Types ───────────────────────────────────────────────────
+
+export type MutationType =
+  | 'arithmetic'
+  | 'boolean'
+  | 'boundary'
+  | 'return-value';
+
+export interface Mutant {
+  id: string;
+  type: MutationType;
+  original: string;
+  mutated: string;
+  location: { line: number; column: number };
+  status: 'pending' | 'killed' | 'survived' | 'timeout' | 'error';
+}
+
+export interface MutationReport {
+  mutants: Mutant[];
+  score: number;
+  killed: number;
+  survived: number;
+  total: number;
+  weakSpots: string[];
+}
+
+// ─── Contract Testing Types ───────────────────────────────────────────────────
+
+export interface ContractInteraction {
+  description: string;
+  request: { method: string; path: string; headers?: Record<string, string>; body?: unknown };
+  response: { status: number; headers?: Record<string, string>; body?: unknown };
+}
+
+export interface APIContract {
+  provider: string;
+  consumer: string;
+  interactions: ContractInteraction[];
+  version: string;
+  createdAt: Date;
+}
+
+export interface ContractVerificationResult {
+  valid: boolean;
+  failures: Array<{ interaction: string; expected: unknown; actual: unknown; error: string }>;
+  summary: string;
+}
+
+export interface ContractBreak {
+  type: 'removed-endpoint' | 'changed-response' | 'new-required-field' | 'type-change';
+  description: string;
+  breaking: boolean;
+  path: string;
+}
+
+// ─── Episodic Memory Types ────────────────────────────────────────────────────
+
+export interface Episode {
+  id: string;
+  type: string;
+  content: string;
+  tags: string[];
+  outcome: 'success' | 'failure' | 'partial' | 'unknown';
+  timestamp: Date;
+  metadata?: Record<string, unknown>;
+}
+
+export interface TestPattern {
+  id: string;
+  name: string;
+  description: string;
+  pattern: string;
+  successRate: number;
+  usageCount: number;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ─── Reasoning Types ──────────────────────────────────────────────────────────
+
+export interface ReasoningResult {
+  steps: string[];
+  conclusion: string;
+  confidence: number;
+  alternatives: string[];
+}
+
+// ─── Test Prioritization Types ────────────────────────────────────────────────
+
+export interface PrioritizedTest {
+  testId: string;
+  testName: string;
+  priority: number;
+  factors: { changeProximity: number; failureRate: number; executionTime: number; businessCriticality: number };
+}
+
+// ─── Metrics Types ────────────────────────────────────────────────────────────
+
+export interface MetricPoint {
+  name: string;
+  type: 'counter' | 'gauge' | 'histogram';
+  value: number;
+  labels: Record<string, string>;
+  timestamp: Date;
+}
+
+// ─── Event Stream Types ───────────────────────────────────────────────────────
+
+export interface AuroraEvent {
+  id: string;
+  type: string;
+  payload: unknown;
+  timestamp: Date;
+  source: string;
+}
+
+// ─── CI/CD Adapter Types ──────────────────────────────────────────────────────
+
+export interface CIAdapterResult {
+  success: boolean;
+  message: string;
+  data?: unknown;
 }
 
 // ─── Config Types ─────────────────────────────────────────────────────────────

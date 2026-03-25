@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --aurora-bg: #0a0a1a;
+  --aurora-purple: #a277ff;
+  --aurora-cyan: #00d9ff;
+  --aurora-green: #61ffca;
+  --aurora-orange: #ffca85;
+  --aurora-red: #ff6767;
+}
+
+body {
+  background: var(--aurora-bg);
+  color: #e0e0e0;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.idle { background: #666; }
+.status-dot.running { background: var(--aurora-cyan); animation: pulse 1.5s infinite; }
+.status-dot.completed { background: var(--aurora-green); }
+.status-dot.error { background: var(--aurora-red); }
+.status-dot.failed { background: var(--aurora-red); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.metric-card {
+  @apply glass-card p-4 flex flex-col gap-1;
+}
+
+.metric-card .value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--aurora-cyan);
+}
+
+.metric-card .label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }

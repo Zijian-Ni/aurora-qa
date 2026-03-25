@@ -11,6 +11,12 @@ import {
 import type { Orchestrator, AuroraConfig } from '@aurora-qa/core';
 import { createTestTools } from './tools/test-tools.js';
 import { createAnalysisTools } from './tools/analysis-tools.js';
+import { createSecurityTools } from './tools/security-tools.js';
+import { createChaosTools } from './tools/chaos-tools.js';
+import { createAccessibilityTools } from './tools/accessibility-tools.js';
+import { createPerformanceTools } from './tools/performance-tools.js';
+import { createMutationTools } from './tools/mutation-tools.js';
+import { createContractTools } from './tools/contract-tools.js';
 import { logger } from '@aurora-qa/core';
 
 type ToolHandlers = Record<
@@ -40,6 +46,12 @@ export class AuroraQAMCPServer {
     this.tools = {
       ...createTestTools(orchestrator),
       ...createAnalysisTools(orchestrator),
+      ...createSecurityTools(orchestrator),
+      ...createChaosTools(orchestrator),
+      ...createAccessibilityTools(orchestrator),
+      ...createPerformanceTools(orchestrator),
+      ...createMutationTools(orchestrator),
+      ...createContractTools(orchestrator),
     } as ToolHandlers;
 
     this.registerHandlers();
@@ -269,6 +281,87 @@ export class AuroraQAMCPServer {
           limit: { type: 'number' },
         },
         required: ['query'],
+      },
+      scan_security: {
+        type: 'object',
+        properties: {
+          code: { type: 'string' },
+          filePath: { type: 'string' },
+          language: { type: 'string' },
+        },
+        required: ['code'],
+      },
+      check_dependencies: {
+        type: 'object',
+        properties: { packageJsonPath: { type: 'string' } },
+        required: ['packageJsonPath'],
+      },
+      design_chaos_experiment: {
+        type: 'object',
+        properties: {
+          systemDescription: { type: 'string' },
+          targetResilience: { type: 'number' },
+        },
+        required: ['systemDescription'],
+      },
+      get_chaos_report: {
+        type: 'object',
+        properties: { runId: { type: 'string' } },
+        required: ['runId'],
+      },
+      check_accessibility: {
+        type: 'object',
+        properties: {
+          html: { type: 'string' },
+          wcagLevel: { type: 'string', enum: ['A', 'AA', 'AAA'] },
+        },
+        required: ['html'],
+      },
+      analyze_performance: {
+        type: 'object',
+        properties: {
+          code: { type: 'string' },
+          filePath: { type: 'string' },
+        },
+        required: ['code'],
+      },
+      estimate_complexity: {
+        type: 'object',
+        properties: {
+          code: { type: 'string' },
+          language: { type: 'string' },
+        },
+        required: ['code'],
+      },
+      run_mutation_testing: {
+        type: 'object',
+        properties: {
+          sourceCode: { type: 'string' },
+          testCode: { type: 'string' },
+          framework: { type: 'string' },
+        },
+        required: ['sourceCode'],
+      },
+      identify_weak_tests: {
+        type: 'object',
+        properties: {
+          sourceCode: { type: 'string' },
+          filePath: { type: 'string' },
+        },
+        required: ['sourceCode', 'filePath'],
+      },
+      verify_api_contract: {
+        type: 'object',
+        properties: {
+          contractPath: { type: 'string' },
+          apiUrl: { type: 'string' },
+        },
+        required: ['contractPath', 'apiUrl'],
+      },
+      generate_contract: {
+        type: 'object',
+        properties: { openApiSpec: { type: 'string' } },
+        required: ['openApiSpec'],
       },
     };
 
