@@ -9,3 +9,8 @@ coverage/
 .DS_Store
 *.tsbuildinfo
 .next/
+
+# 测试报告（可能包含本地路径和安全分析结果）
+aurora-qa-report.json
+examples/*/aurora-qa-report.json
+**/aurora-qa-report.json

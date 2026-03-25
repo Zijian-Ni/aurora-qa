@@ -21,8 +21,9 @@ import { Orchestrator, loadConfig } from '@aurora-qa/core'
 
 // ─── 配置 ─────────────────────────────────────────────────────────────────────
 
+// 路径通过环境变量传入，不在代码里硬编码本地路径
 const PHILIAPEDIA_PATH = process.env['PHILIAPEDIA_PATH']
-  ?? resolve(import.meta.dirname, '../../../.openclaw/workspace/projects/philiapedia')
+  ?? process.env['HOME'] ? resolve(process.env['HOME'], 'projects/philiapedia') : './philiapedia'
 
 const MODE = (() => {
   const idx = process.argv.indexOf('--mode')
