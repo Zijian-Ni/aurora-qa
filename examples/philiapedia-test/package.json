@@ -1,0 +1,15 @@
+{
+  "name": "aurora-qa-philiapedia-example",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts",
+    "security": "tsx index.ts --mode security",
+    "review": "tsx index.ts --mode review",
+    "test-gen": "tsx index.ts --mode test-gen",
+    "full": "tsx index.ts --mode full"
+  },
+  "dependencies": {
+    "@aurora-qa/core": "workspace:*"
+  }
+}

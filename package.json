@@ -2,7 +2,7 @@
   "name": "aurora-qa",
   "version": "1.0.0",
   "private": true,
-  "description": "Aurora QA \u2014 AI-powered quality assurance platform",
+  "description": "Aurora QA — AI-powered quality assurance platform",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -22,6 +22,7 @@
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.3.0",
+    "tsx": "^4.21.0",
     "turbo": "^2.1.0",
     "typescript": "^5.5.0"
   },
