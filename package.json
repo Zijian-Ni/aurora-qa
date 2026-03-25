@@ -1,0 +1,28 @@
+{
+  "name": "aurora-qa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aurora QA — AI-powered quality assurance platform",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "mcp": "pnpm --filter @aurora-qa/mcp-server start",
+    "dashboard": "pnpm --filter @aurora-qa/dashboard start"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "prettier": "^3.3.0",
+    "turbo": "^2.1.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.14.0"
+}

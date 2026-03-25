@@ -1,0 +1,33 @@
+{
+  "name": "@aurora-qa/core",
+  "version": "1.0.0",
+  "description": "Aurora QA core — agents, orchestrator, memory system",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./config": {
+      "import": "./dist/config.js",
+      "types": "./dist/config.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.0"
+  }
+}
