@@ -13,7 +13,7 @@ export const IdentifyWeakTestsSchema = z.object({
   filePath: z.string().describe('File path of the source code'),
 });
 
-export function createMutationTools(orchestrator: Orchestrator) {
+export function createMutationTools(_orchestrator: Orchestrator) {
   return {
     run_mutation_testing: {
       description: 'Run mutation testing to measure test quality. Generates code mutations and checks if tests catch them.',

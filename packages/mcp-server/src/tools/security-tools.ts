@@ -12,7 +12,7 @@ export const CheckDependenciesSchema = z.object({
   packageJsonPath: z.string().describe('Content of package.json to check for vulnerable dependencies'),
 });
 
-export function createSecurityTools(orchestrator: Orchestrator) {
+export function createSecurityTools(_orchestrator: Orchestrator) {
   return {
     scan_security: {
       description:

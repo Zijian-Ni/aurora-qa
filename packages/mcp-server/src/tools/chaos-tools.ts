@@ -11,7 +11,7 @@ export const GetChaosReportSchema = z.object({
   runId: z.string().describe('ID of the chaos run to get report for'),
 });
 
-export function createChaosTools(orchestrator: Orchestrator) {
+export function createChaosTools(_orchestrator: Orchestrator) {
   return {
     design_chaos_experiment: {
       description: 'Design chaos engineering experiments to test system resilience.',

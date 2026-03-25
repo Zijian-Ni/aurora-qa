@@ -7,7 +7,7 @@ export const CheckAccessibilitySchema = z.object({
   wcagLevel: z.enum(['A', 'AA', 'AAA']).optional().describe('WCAG conformance level (default: AA)'),
 });
 
-export function createAccessibilityTools(orchestrator: Orchestrator) {
+export function createAccessibilityTools(_orchestrator: Orchestrator) {
   return {
     check_accessibility: {
       description: 'Check HTML or React code for WCAG 2.1 accessibility compliance.',

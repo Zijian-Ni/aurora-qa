@@ -11,7 +11,7 @@ export const GenerateContractSchema = z.object({
   openApiSpec: z.string().describe('OpenAPI/Swagger specification as JSON string'),
 });
 
-export function createContractTools(orchestrator: Orchestrator) {
+export function createContractTools(_orchestrator: Orchestrator) {
   return {
     verify_api_contract: {
       description: 'Verify an API contract against actual API responses.',

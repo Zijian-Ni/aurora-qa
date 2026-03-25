@@ -4,7 +4,7 @@ import type { AuroraConfig, Mutant, MutationType, MutationReport } from '../type
 
 const ARITHMETIC_MUTATIONS: Array<[RegExp, string, string]> = [
   [/(?<![=!<>])(\+)(?!=)/g, '-', 'arithmetic'],
-  [/(?<![=])(\-)(?!=)/g, '+', 'arithmetic'],
+  [/(?<![=])(-)(?!=)/g, '+', 'arithmetic'],
   [/(\*)(?!=)/g, '/', 'arithmetic'],
   [/(\/)(?!=)/g, '*', 'arithmetic'],
 ];

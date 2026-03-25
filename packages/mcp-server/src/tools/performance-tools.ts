@@ -12,7 +12,7 @@ export const EstimateComplexitySchema = z.object({
   language: z.string().optional().describe('Programming language'),
 });
 
-export function createPerformanceTools(orchestrator: Orchestrator) {
+export function createPerformanceTools(_orchestrator: Orchestrator) {
   return {
     analyze_performance: {
       description: 'Analyze code for performance issues: N+1 queries, memory leaks, blocking operations, and more.',

@@ -71,9 +71,9 @@ const XSS_PATTERNS = [
 ];
 
 const SECRET_PATTERNS = [
-  { pattern: /(?:api[_-]?key|apikey)\s*[:=]\s*['"][A-Za-z0-9_\-]{20,}['"]/gi, name: 'API Key' },
+  { pattern: /(?:api[_-]?key|apikey)\s*[:=]\s*['"][A-Za-z0-9_-]{20,}['"]/gi, name: 'API Key' },
   { pattern: /(?:password|passwd|pwd)\s*[:=]\s*['"][^'"]{8,}['"]/gi, name: 'Password' },
-  { pattern: /(?:secret|token)\s*[:=]\s*['"][A-Za-z0-9_\-]{20,}['"]/gi, name: 'Secret/Token' },
+  { pattern: /(?:secret|token)\s*[:=]\s*['"][A-Za-z0-9_-]{20,}['"]/gi, name: 'Secret/Token' },
   { pattern: /(?:aws_access_key_id)\s*[:=]\s*['"]AKIA[A-Z0-9]{16}['"]/gi, name: 'AWS Access Key' },
   { pattern: /-----BEGIN (?:RSA )?PRIVATE KEY-----/g, name: 'Private Key' },
   { pattern: /ghp_[A-Za-z0-9_]{36}/g, name: 'GitHub Token' },
