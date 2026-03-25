@@ -75,7 +75,7 @@ The platform integrates with your development workflow via the Model Context Pro
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/nicони/aurora-qa.git && cd aurora-qa
+git clone https://github.com/Zijian-Ni/aurora-qa.git && cd aurora-qa
 
 # 2. Install dependencies
 pnpm install
@@ -87,7 +87,7 @@ pnpm build
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # 5. Run an example
-npx tsx examples/basic-pipeline/index.ts
+node_modules/.bin/tsx examples/basic-pipeline/index.ts
 ```
 
 ## 🤖 Agents (13 total)
