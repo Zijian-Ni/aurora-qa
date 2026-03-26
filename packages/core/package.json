@@ -19,7 +19,7 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-sk-test-placeholder} vitest run",
     "lint": "eslint src",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
