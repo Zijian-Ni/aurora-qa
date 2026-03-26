@@ -24,6 +24,8 @@ The platform integrates with your development workflow via the Model Context Pro
 - 🩹 **Self-Healing Tests** — Automatically classifies and fixes flaky tests
 - 🎭 **Browser Automation** — AI-powered semantic element targeting with Playwright
 - 🧠 **Knowledge Memory** — TF-IDF vector store learns from every analysis session
+- 🛡️ **Circuit Breaker** — Auto-halts agents after consecutive failures to prevent token waste
+- ⏱️ **Timeout Control** — AbortController-based API timeouts with graceful degradation
 - 📊 **Real-time Dashboard** — Next.js 15 dashboard with SSE live updates
 - 🔌 **MCP Integration** — 12 tools available in Claude Desktop, Cursor, VS Code
 
@@ -88,6 +90,56 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 # 5. Run an example
 node_modules/.bin/tsx examples/basic-pipeline/index.ts
+```
+
+## 📖 API Usage
+
+```typescript
+import { Orchestrator, loadConfig } from '@aurora-qa/core';
+
+// Initialize with config
+const config = loadConfig({ anthropicApiKey: process.env.ANTHROPIC_API_KEY! });
+const orchestrator = new Orchestrator({ config });
+
+// Generate tests for a source file
+const testOutput = await orchestrator.generateTests({
+  sourceCode: 'export function add(a: number, b: number) { return a + b; }',
+  filePath: 'src/math.ts',
+  framework: 'vitest',
+});
+
+// Run security scan
+const securityReport = await orchestrator.scanSecurity(
+  'const query = `SELECT * FROM users WHERE id = ${userId}`;',
+  'src/db.ts',
+);
+
+// Analyze performance
+const perfAnalysis = await orchestrator.analyzePerformance(
+  'for (const user of users) { await db.find(user.id); }',
+  'typescript',
+);
+
+// Run a full pipeline
+const run = await orchestrator.runPipeline({
+  id: 'my-pipeline',
+  name: 'Full QA',
+  steps: [
+    { id: 'gen', type: 'generate-tests', name: 'Generate', config: { sourceCode: '...', filePath: 'app.ts' } },
+    { id: 'sec', type: 'scan-security', name: 'Security', config: { code: '...' } },
+    { id: 'perf', type: 'analyze-performance', name: 'Performance', config: { code: '...' } },
+  ],
+  triggers: [{ type: 'manual' }],
+  environment: {},
+  createdAt: new Date(),
+  updatedAt: new Date(),
+});
+
+// Health check
+console.log(orchestrator.health());
+
+// Shutdown
+await orchestrator.shutdown();
 ```
 
 ## 🤖 Agents (13 total)

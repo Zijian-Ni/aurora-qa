@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "start": "tsx index.ts",
     "security": "tsx index.ts --mode security",
     "review": "tsx index.ts --mode review",

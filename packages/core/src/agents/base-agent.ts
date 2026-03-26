@@ -10,6 +10,7 @@ export interface AgentOptions {
   systemPrompt: string;
   tools?: Anthropic.Tool[];
   config: AuroraConfig;
+  maxConsecutiveFailures?: number;
 }
 
 export interface ToolCallResult {
@@ -35,6 +36,9 @@ export abstract class BaseAgent extends EventEmitter {
   protected tools: Anthropic.Tool[];
   protected config: AuroraConfig;
   protected history: Anthropic.MessageParam[] = [];
+  protected readonly maxHistorySize = 100;
+  protected readonly maxConsecutiveFailures: number;
+  protected consecutiveFailures = 0;
   protected logger: Logger;
 
   constructor(options: AgentOptions) {
@@ -45,6 +49,7 @@ export abstract class BaseAgent extends EventEmitter {
     this.systemPrompt = options.systemPrompt;
     this.tools = options.tools ?? [];
     this.config = options.config;
+    this.maxConsecutiveFailures = options.maxConsecutiveFailures ?? 3;
     this.logger = rootLogger.child(this.name);
     this.client = new Anthropic({ apiKey: options.config.anthropicApiKey });
   }
@@ -76,6 +81,14 @@ export abstract class BaseAgent extends EventEmitter {
       appendHistory = false,
     }: { maxIterations?: number; appendHistory?: boolean } = {},
   ): Promise<string> {
+    // Circuit breaker: refuse to run if too many consecutive failures
+    if (this.consecutiveFailures >= this.maxConsecutiveFailures) {
+      const msg = `Agent "${this.name}" circuit-breaker tripped after ${this.consecutiveFailures} consecutive failures. Call resetCircuitBreaker() to re-enable.`;
+      this.logger.error(msg);
+      this.emit('circuit-breaker', { agentId: this.id, consecutiveFailures: this.consecutiveFailures });
+      throw new Error(msg);
+    }
+
     if (!appendHistory) this.history = [];
     this.setStatus('running');
 
@@ -111,6 +124,7 @@ export abstract class BaseAgent extends EventEmitter {
           this.history.push({ role: 'assistant', content: response.content });
           const toolResults = await this.processToolUse(response.content);
           this.history.push({ role: 'user', content: toolResults });
+          this.trimHistory();
           continue;
         }
 
@@ -123,13 +137,28 @@ export abstract class BaseAgent extends EventEmitter {
         this.logger.warn(`Reached max iterations (${maxIterations})`);
       }
 
+      // Success — reset circuit breaker counter
+      this.consecutiveFailures = 0;
       this.setStatus('completed');
       return finalText;
     } catch (err) {
+      this.consecutiveFailures++;
       this.setStatus('error');
-      this.emit('error', { agentId: this.id, error: err });
+      this.emit('error', { agentId: this.id, error: err, consecutiveFailures: this.consecutiveFailures });
+
+      if (this.consecutiveFailures >= this.maxConsecutiveFailures) {
+        this.logger.error(`Circuit breaker tripped: ${this.consecutiveFailures} consecutive failures`, { agentId: this.id });
+        this.emit('circuit-breaker', { agentId: this.id, consecutiveFailures: this.consecutiveFailures });
+      }
+
       throw err;
     }
+  }
+
+  /** Reset the circuit breaker after consecutive failures. */
+  resetCircuitBreaker(): void {
+    this.consecutiveFailures = 0;
+    this.logger.info('Circuit breaker reset', { agentId: this.id });
   }
 
   // ─── Internal helpers ────────────────────────────────────────────────────────
@@ -188,6 +217,13 @@ export abstract class BaseAgent extends EventEmitter {
     }
 
     return results;
+  }
+
+  private trimHistory(): void {
+    if (this.history.length > this.maxHistorySize) {
+      // Keep the first message (system context) and trim from the front
+      this.history = this.history.slice(-this.maxHistorySize);
+    }
   }
 
   private setStatus(status: AgentStatus): void {

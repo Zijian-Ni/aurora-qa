@@ -60,7 +60,9 @@ export class EventStream extends EventEmitter {
     const handler = (event: AuroraEvent) => {
       if (!filter || filter(event)) {
         queue.push(event);
-        resolve?.();
+        const r = resolve;
+        resolve = null;
+        r?.();
       }
     };
 
@@ -72,6 +74,7 @@ export class EventStream extends EventEmitter {
           yield queue.shift()!;
         } else {
           await new Promise<void>(r => { resolve = r; });
+          resolve = null;
         }
       }
     } finally {

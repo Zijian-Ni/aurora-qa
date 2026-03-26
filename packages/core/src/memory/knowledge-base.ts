@@ -37,143 +37,159 @@ export class KnowledgeBase {
   // ─── Ingestion ───────────────────────────────────────────────────────────────
 
   learnFromBugs(bugs: BugReport[], context?: string): void {
-    for (const bug of bugs) {
-      const content = [
-        `Bug: ${bug.title}`,
-        `Severity: ${bug.severity}`,
-        `Category: ${bug.category}`,
-        `Description: ${bug.description}`,
-        bug.codeSnippet ? `Code: ${bug.codeSnippet}` : '',
-        bug.suggestedFix ? `Fix: ${bug.suggestedFix}` : '',
-        context ? `Context: ${context}` : '',
-      ]
-        .filter(Boolean)
-        .join('\n');
+    try {
+      for (const bug of bugs) {
+        const content = [
+          `Bug: ${bug.title}`,
+          `Severity: ${bug.severity}`,
+          `Category: ${bug.category}`,
+          `Description: ${bug.description}`,
+          bug.codeSnippet ? `Code: ${bug.codeSnippet}` : '',
+          bug.suggestedFix ? `Fix: ${bug.suggestedFix}` : '',
+          context ? `Context: ${context}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n');
 
-      this.upsert({
-        type: 'bug-pattern',
-        content,
-        metadata: {
-          bugId: bug.id,
-          severity: bug.severity,
-          category: bug.category,
-          filePath: bug.filePath,
-          confidence: bug.confidence,
-        },
-        tags: [bug.severity, bug.category, 'bug'],
-      });
+        this.upsert({
+          type: 'bug-pattern',
+          content,
+          metadata: {
+            bugId: bug.id,
+            severity: bug.severity,
+            category: bug.category,
+            filePath: bug.filePath,
+            confidence: bug.confidence,
+          },
+          tags: [bug.severity, bug.category, 'bug'],
+        });
+      }
+      this.log.debug(`Learned from ${bugs.length} bugs`);
+    } catch (err) {
+      this.log.error('Failed to learn from bugs', err);
     }
-    this.log.debug(`Learned from ${bugs.length} bugs`);
   }
 
   learnFromTests(tests: TestCase[], context?: string): void {
-    for (const test of tests) {
-      const content = [
-        `Test: ${test.name}`,
-        `Description: ${test.description}`,
-        `Framework: ${test.framework}`,
-        `Tags: ${test.tags.join(', ')}`,
-        `Code: ${test.code.slice(0, 500)}`,
-        context ? `Context: ${context}` : '',
-      ]
-        .filter(Boolean)
-        .join('\n');
+    try {
+      for (const test of tests) {
+        const content = [
+          `Test: ${test.name}`,
+          `Description: ${test.description}`,
+          `Framework: ${test.framework}`,
+          `Tags: ${test.tags.join(', ')}`,
+          `Code: ${test.code.slice(0, 500)}`,
+          context ? `Context: ${context}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n');
 
-      this.upsert({
-        type: 'test-pattern',
-        content,
-        metadata: {
-          testId: test.id,
-          framework: test.framework,
-          filePath: test.filePath,
-          status: test.status,
-        },
-        tags: [...test.tags, test.framework, 'test'],
-      });
+        this.upsert({
+          type: 'test-pattern',
+          content,
+          metadata: {
+            testId: test.id,
+            framework: test.framework,
+            filePath: test.filePath,
+            status: test.status,
+          },
+          tags: [...test.tags, test.framework, 'test'],
+        });
+      }
+      this.log.debug(`Learned from ${tests.length} tests`);
+    } catch (err) {
+      this.log.error('Failed to learn from tests', err);
     }
-    this.log.debug(`Learned from ${tests.length} tests`);
   }
 
   learnFromReview(review: CodeReview): void {
-    for (const issue of review.issues) {
-      const content = [
-        `Review issue: ${issue.message}`,
-        `Severity: ${issue.severity}`,
-        `Category: ${issue.category}`,
-        issue.codeSnippet ? `Code: ${issue.codeSnippet}` : '',
-        issue.suggestion ? `Suggestion: ${issue.suggestion}` : '',
-        issue.rule ? `Rule: ${issue.rule}` : '',
-        `File: ${review.filePath}`,
-        `Language: ${review.language}`,
-      ]
-        .filter(Boolean)
-        .join('\n');
+    try {
+      for (const issue of review.issues) {
+        const content = [
+          `Review issue: ${issue.message}`,
+          `Severity: ${issue.severity}`,
+          `Category: ${issue.category}`,
+          issue.codeSnippet ? `Code: ${issue.codeSnippet}` : '',
+          issue.suggestion ? `Suggestion: ${issue.suggestion}` : '',
+          issue.rule ? `Rule: ${issue.rule}` : '',
+          `File: ${review.filePath}`,
+          `Language: ${review.language}`,
+        ]
+          .filter(Boolean)
+          .join('\n');
 
-      this.upsert({
-        type: 'review-pattern',
-        content,
-        metadata: {
-          reviewId: review.id,
-          severity: issue.severity,
-          category: issue.category,
-          filePath: review.filePath,
-          language: review.language,
-          rule: issue.rule,
-        },
-        tags: [issue.severity, issue.category, review.language, 'review'],
-      });
+        this.upsert({
+          type: 'review-pattern',
+          content,
+          metadata: {
+            reviewId: review.id,
+            severity: issue.severity,
+            category: issue.category,
+            filePath: review.filePath,
+            language: review.language,
+            rule: issue.rule,
+          },
+          tags: [issue.severity, issue.category, review.language, 'review'],
+        });
+      }
+
+      if (review.suggestions.length > 0) {
+        const content = [
+          `Code review for ${review.filePath}`,
+          `Score: ${review.score}/100 (${review.grade})`,
+          `Summary: ${review.summary}`,
+          `Strengths: ${review.strengths.join(', ')}`,
+          `Suggestions: ${review.suggestions.join('; ')}`,
+        ].join('\n');
+
+        this.upsert({
+          type: 'code-insight',
+          content,
+          metadata: {
+            reviewId: review.id,
+            filePath: review.filePath,
+            score: review.score,
+            grade: review.grade,
+            language: review.language,
+          },
+          tags: [review.language, review.grade, 'insight'],
+        });
+      }
+
+      this.log.debug(`Learned from review: ${review.filePath} (${review.grade})`);
+    } catch (err) {
+      this.log.error('Failed to learn from review', err);
     }
-
-    if (review.suggestions.length > 0) {
-      const content = [
-        `Code review for ${review.filePath}`,
-        `Score: ${review.score}/100 (${review.grade})`,
-        `Summary: ${review.summary}`,
-        `Strengths: ${review.strengths.join(', ')}`,
-        `Suggestions: ${review.suggestions.join('; ')}`,
-      ].join('\n');
-
-      this.upsert({
-        type: 'code-insight',
-        content,
-        metadata: {
-          reviewId: review.id,
-          filePath: review.filePath,
-          score: review.score,
-          grade: review.grade,
-          language: review.language,
-        },
-        tags: [review.language, review.grade, 'insight'],
-      });
-    }
-
-    this.log.debug(`Learned from review: ${review.filePath} (${review.grade})`);
   }
 
   learnFromCoverage(report: CoverageReport, filePath?: string): void {
-    const content = [
-      filePath ? `Coverage gaps in ${filePath}` : 'Coverage report',
-      `Overall: statements=${report.overall.statements.toFixed(1)}%, ` +
-        `branches=${report.overall.branches.toFixed(1)}%, ` +
-        `functions=${report.overall.functions.toFixed(1)}%, ` +
-        `lines=${report.overall.lines.toFixed(1)}%`,
-      `Meets thresholds: ${report.meetsThresholds}`,
-      `Files analyzed: ${report.files.length}`,
-    ].join('\n');
+    try {
+      const content = [
+        filePath ? `Coverage gaps in ${filePath}` : 'Coverage report',
+        `Overall: statements=${report.overall.statements.toFixed(1)}%, ` +
+          `branches=${report.overall.branches.toFixed(1)}%, ` +
+          `functions=${report.overall.functions.toFixed(1)}%, ` +
+          `lines=${report.overall.lines.toFixed(1)}%`,
+        `Meets thresholds: ${report.meetsThresholds}`,
+        `Files analyzed: ${report.files.length}`,
+      ].join('\n');
 
-    this.upsert({
-      type: 'coverage-gap',
-      content,
-      metadata: {
-        reportId: report.id,
-        overall: report.overall,
-        meetsThresholds: report.meetsThresholds,
-        fileCount: report.files.length,
-      },
-      tags: ['coverage', report.meetsThresholds ? 'passing' : 'failing'],
-    });
+      this.upsert({
+        type: 'coverage-gap',
+        content,
+        metadata: {
+          reportId: report.id,
+          overall: report.overall,
+          meetsThresholds: report.meetsThresholds,
+          fileCount: report.files.length,
+        },
+        tags: ['coverage', report.meetsThresholds ? 'passing' : 'failing'],
+      });
 
-    this.log.debug(`Learned from coverage report`);
+      this.log.debug(`Learned from coverage report`);
+    } catch (err) {
+      this.log.error('Failed to learn from coverage report', err);
+    }
   }
 
   learnFact(
@@ -182,7 +198,12 @@ export class KnowledgeBase {
     metadata: Record<string, unknown> = {},
     tags: string[] = [],
   ): string {
-    return this.upsert({ type, content, metadata, tags }).id;
+    try {
+      return this.upsert({ type, content, metadata, tags }).id;
+    } catch (err) {
+      this.log.error('Failed to learn fact', err);
+      return '';
+    }
   }
 
   // ─── Query ──────────────────────────────────────────────────────────────────

@@ -23,13 +23,13 @@ import { Orchestrator, loadConfig } from '@aurora-qa/core'
 
 // 路径通过环境变量传入，不在代码里硬编码本地路径
 const PHILIAPEDIA_PATH = process.env['PHILIAPEDIA_PATH']
-  ?? process.env['HOME'] ? resolve(process.env['HOME'], 'projects/philiapedia') : './philiapedia'
+  ?? '/tmp/philiapedia-fix/philiapedia'
 
-const MODE = (() => {
+const MODE: string = (() => {
   const idx = process.argv.indexOf('--mode')
-  if (idx !== -1) return process.argv[idx + 1]
+  if (idx !== -1) return process.argv[idx + 1] ?? 'full'
   const eq = process.argv.find(a => a.startsWith('--mode='))
-  if (eq) return eq.split('=')[1]
+  if (eq) return eq.split('=')[1] ?? 'full'
   return 'full'
 })()
 

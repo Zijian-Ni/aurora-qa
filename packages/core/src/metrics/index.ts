@@ -80,10 +80,11 @@ export class MetricsCollector {
     }
 
     const sorted = [...m.values].sort((a, b) => a - b);
+    const percentile = (p: number) => sorted[Math.min(Math.ceil(sorted.length * p) - 1, sorted.length - 1)] ?? 0;
     return {
-      p50: sorted[Math.floor(sorted.length * 0.5)] ?? 0,
-      p95: sorted[Math.floor(sorted.length * 0.95)] ?? 0,
-      p99: sorted[Math.floor(sorted.length * 0.99)] ?? 0,
+      p50: percentile(0.5),
+      p95: percentile(0.95),
+      p99: percentile(0.99),
       count: sorted.length,
     };
   }
@@ -111,8 +112,9 @@ export class MetricsCollector {
           lines.push(`${name}_count${labelsStr} ${sorted.length}`);
           lines.push(`${name}_sum${labelsStr} ${sum}`);
           for (const q of [0.5, 0.9, 0.95, 0.99]) {
-            const idx = Math.floor(sorted.length * q);
-            lines.push(`${name}{quantile="${q}"${labelsStr.slice(1, -1) ? ',' + labelsStr.slice(1, -1) : ''}} ${sorted[idx] ?? 0}`);
+            const idx = Math.min(Math.ceil(sorted.length * q) - 1, sorted.length - 1);
+            const extraLabels = labelsStr.length > 2 ? ',' + labelsStr.slice(1, -1) : '';
+            lines.push(`${name}{quantile="${q}"${extraLabels}} ${sorted[idx] ?? 0}`);
           }
           break;
         }

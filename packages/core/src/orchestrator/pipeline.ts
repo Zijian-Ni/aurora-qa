@@ -18,6 +18,9 @@ import type { TestRunnerAgent } from '../agents/test-runner.js';
 import type { BugAnalyzerAgent } from '../agents/bug-analyzer.js';
 import type { CoverageAgent } from '../agents/coverage-agent.js';
 import type { ReviewAgent } from '../agents/review-agent.js';
+import type { SecurityAgent } from '../agents/security-agent.js';
+import type { PerformanceAgent } from '../agents/performance-agent.js';
+import type { HealerAgent } from '../agents/healer-agent.js';
 import type { KnowledgeBase } from '../memory/knowledge-base.js';
 import { logger } from '../utils/logger.js';
 
@@ -27,6 +30,9 @@ export interface PipelineAgents {
   bugAnalyzer: BugAnalyzerAgent;
   coverageAgent: CoverageAgent;
   reviewAgent: ReviewAgent;
+  securityAgent?: SecurityAgent;
+  performanceAgent?: PerformanceAgent;
+  healerAgent?: HealerAgent;
 }
 
 export interface PipelineRunnerOptions {
@@ -126,9 +132,10 @@ export class PipelineRunner extends EventEmitter {
     this.emit('step-started', { run, step: stepRun });
 
     const timeout = step.timeoutMs ?? 300_000;
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`Step "${step.name}" timed out after ${timeout}ms`)), timeout),
-    );
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error(`Step "${step.name}" timed out after ${timeout}ms`)), timeout);
+    });
 
     try {
       const output = await Promise.race([
@@ -144,6 +151,7 @@ export class PipelineRunner extends EventEmitter {
       stepRun.error = err instanceof Error ? err.message : String(err);
       this.log.error(`Step failed: ${step.name}`, err);
     } finally {
+      clearTimeout(timeoutId);
       stepRun.completedAt = new Date();
       stepRun.durationMs = stepRun.completedAt.getTime() - (stepRun.startedAt?.getTime() ?? 0);
       this.emit('step-completed', { run, step: stepRun });
@@ -222,6 +230,27 @@ export class PipelineRunner extends EventEmitter {
         return output;
       }
 
+      case 'scan-security': {
+        if (!this.agents.securityAgent) throw new Error('SecurityAgent not configured in pipeline');
+        const code = String(step.config['code'] ?? '');
+        const filePath = step.config['filePath'] as string | undefined;
+        return this.agents.securityAgent.generateSecurityReport(code, filePath);
+      }
+
+      case 'analyze-performance': {
+        if (!this.agents.performanceAgent) throw new Error('PerformanceAgent not configured in pipeline');
+        const code = String(step.config['code'] ?? '');
+        const language = step.config['language'] as string | undefined;
+        return this.agents.performanceAgent.analyze(code, language);
+      }
+
+      case 'heal-tests': {
+        if (!this.agents.healerAgent) throw new Error('HealerAgent not configured in pipeline');
+        const error = String(step.config['error'] ?? '');
+        const context = (step.config['context'] as Record<string, unknown>) ?? {};
+        return this.agents.healerAgent.analyzeFailure(error, context);
+      }
+
       default:
         throw new Error(`Unknown step type: ${step.type}`);
     }
@@ -256,6 +285,22 @@ export class PipelineRunner extends EventEmitter {
         const rev = o as { review?: { score?: number; grade?: string } };
         run.results.reviewScore = rev.review?.score;
         run.results.reviewGrade = rev.review?.grade;
+        break;
+      }
+      case 'scan-security': {
+        const sec = o as { findings?: unknown[]; riskScore?: number };
+        run.results.securityFindings = sec.findings?.length ?? 0;
+        run.results.securityRiskScore = sec.riskScore;
+        break;
+      }
+      case 'analyze-performance': {
+        const perf = o as { issues?: unknown[] };
+        run.results.performanceIssues = perf.issues?.length ?? 0;
+        break;
+      }
+      case 'heal-tests': {
+        const heal = o as { suggestion?: unknown };
+        run.results.healingSuggestions = heal.suggestion ? 1 : 0;
         break;
       }
     }

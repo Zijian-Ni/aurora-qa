@@ -5,6 +5,9 @@ import { TestRunnerAgent } from '../agents/test-runner.js';
 import { BugAnalyzerAgent } from '../agents/bug-analyzer.js';
 import { CoverageAgent } from '../agents/coverage-agent.js';
 import { ReviewAgent } from '../agents/review-agent.js';
+import { SecurityAgent } from '../agents/security-agent.js';
+import { PerformanceAgent } from '../agents/performance-agent.js';
+import { HealerAgent } from '../agents/healer-agent.js';
 import { KnowledgeBase } from '../memory/knowledge-base.js';
 import type {
   AuroraConfig,
@@ -20,6 +23,8 @@ import type {
   AnalyzeCoverageOutput,
   ReviewCodeInput,
   ReviewCodeOutput,
+  SecurityReport,
+  PerformanceAnalysis,
 } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 
@@ -40,6 +45,9 @@ export class Orchestrator extends EventEmitter {
   readonly bugAnalyzer: BugAnalyzerAgent;
   readonly coverageAgent: CoverageAgent;
   readonly reviewAgent: ReviewAgent;
+  readonly securityAgent: SecurityAgent;
+  readonly performanceAgent: PerformanceAgent;
+  readonly healerAgent: HealerAgent;
   readonly knowledgeBase: KnowledgeBase;
 
   private pipelineRunner: PipelineRunner;
@@ -49,19 +57,22 @@ export class Orchestrator extends EventEmitter {
     super();
     this.config = options.config;
 
-    // Initialize agents
-    this.testGenerator = new TestGeneratorAgent(this.config);
-    this.testRunner = new TestRunnerAgent(this.config);
-    this.bugAnalyzer = new BugAnalyzerAgent(this.config);
-    this.coverageAgent = new CoverageAgent(this.config);
-    this.reviewAgent = new ReviewAgent(this.config);
-
     // Initialize knowledge base
     this.knowledgeBase = new KnowledgeBase({
       maxEntries: this.config.memory.maxEntries,
       persistPath: this.config.memory.persistPath,
       similarityThreshold: this.config.memory.similarityThreshold,
     });
+
+    // Initialize agents
+    this.testGenerator = new TestGeneratorAgent(this.config);
+    this.testRunner = new TestRunnerAgent(this.config);
+    this.bugAnalyzer = new BugAnalyzerAgent(this.config);
+    this.coverageAgent = new CoverageAgent(this.config);
+    this.reviewAgent = new ReviewAgent(this.config);
+    this.securityAgent = new SecurityAgent(this.config);
+    this.performanceAgent = new PerformanceAgent(this.config);
+    this.healerAgent = new HealerAgent(this.config, this.knowledgeBase);
 
     // Wire agents to pipeline runner
     this.pipelineRunner = new PipelineRunner({
@@ -71,6 +82,9 @@ export class Orchestrator extends EventEmitter {
         bugAnalyzer: this.bugAnalyzer,
         coverageAgent: this.coverageAgent,
         reviewAgent: this.reviewAgent,
+        securityAgent: this.securityAgent,
+        performanceAgent: this.performanceAgent,
+        healerAgent: this.healerAgent,
       },
       knowledgeBase: this.knowledgeBase,
     });
@@ -139,6 +153,16 @@ export class Orchestrator extends EventEmitter {
     return output;
   }
 
+  async scanSecurity(code: string, filePath?: string): Promise<SecurityReport> {
+    this.log.info('Scanning security', { filePath });
+    return this.securityAgent.generateSecurityReport(code, filePath);
+  }
+
+  async analyzePerformance(code: string, language?: string): Promise<PerformanceAnalysis> {
+    this.log.info('Analyzing performance');
+    return this.performanceAgent.analyze(code, language);
+  }
+
   // ─── Shutdown ─────────────────────────────────────────────────────────────────
 
   async shutdown(): Promise<void> {
@@ -161,6 +185,9 @@ export class Orchestrator extends EventEmitter {
         bugAnalyzer: this.bugAnalyzer.getStatus(),
         coverageAgent: this.coverageAgent.getStatus(),
         reviewAgent: this.reviewAgent.getStatus(),
+        securityAgent: this.securityAgent.getStatus(),
+        performanceAgent: this.performanceAgent.getStatus(),
+        healerAgent: this.healerAgent.getStatus(),
       },
     };
   }

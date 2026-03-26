@@ -84,7 +84,7 @@ class TFIDFVectorizer {
 
   private l2normalize(v: number[]): number[] {
     const norm = Math.sqrt(v.reduce((sum, x) => sum + x * x, 0));
-    if (norm === 0) return v;
+    if (norm < 1e-10) return v;
     return v.map(x => x / norm);
   }
 

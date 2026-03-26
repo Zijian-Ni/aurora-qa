@@ -77,6 +77,8 @@ export class TestPrioritizer {
     if (!testHistory || testHistory.results.length < 5) return 0;
 
     const results = testHistory.results.slice(-20); // Last 20 runs
+    if (results.length < 2) return 0;
+
     let transitions = 0;
 
     for (let i = 1; i < results.length; i++) {
@@ -104,7 +106,8 @@ export class TestPrioritizer {
 
       // Related by naming convention (e.g., foo.ts ↔ foo.test.ts)
       const baseName = file.replace(/\.[^.]+$/, '');
-      if (test.filePath.includes(baseName) || test.name.toLowerCase().includes(baseName.split('/').pop()!.toLowerCase())) {
+      const baseFileName = baseName.split('/').pop() ?? '';
+      if (test.filePath.includes(baseName) || test.name.toLowerCase().includes(baseFileName.toLowerCase())) {
         return 0.9;
       }
 

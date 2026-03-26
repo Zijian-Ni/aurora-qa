@@ -1,0 +1,12 @@
+{
+  "name": "aurora-qa-chaos-resilience-example",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "start": "tsx index.ts"
+  },
+  "dependencies": {
+    "@aurora-qa/core": "workspace:*"
+  }
+}

@@ -77,6 +77,7 @@ export interface GenerateTestsInput {
   existingTests?: string;
   focusAreas?: string[];
   maxTests?: number;
+  context?: string;
 }
 
 export interface GenerateTestsOutput {
@@ -84,6 +85,7 @@ export interface GenerateTestsOutput {
   testCode: string;
   framework: TestFramework;
   coverage_targets: string[];
+  [key: string]: unknown;
 }
 
 export interface RunTestsInput {
@@ -232,7 +234,9 @@ export type IssueCategory =
   | 'maintainability'
   | 'style'
   | 'testability'
-  | 'documentation';
+  | 'documentation'
+  | 'error-handling'
+  | 'edge-cases';
 
 export interface ReviewIssue {
   id: string;
@@ -282,7 +286,10 @@ export type StepType =
   | 'run-tests'
   | 'analyze-bugs'
   | 'check-coverage'
-  | 'review-code';
+  | 'review-code'
+  | 'scan-security'
+  | 'analyze-performance'
+  | 'heal-tests';
 
 export type PipelineStatus = 'idle' | 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
 export type StepStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
@@ -342,6 +349,10 @@ export interface PipelineResults {
   coveragePercent?: number;
   reviewScore?: number;
   reviewGrade?: string;
+  securityRiskScore?: number;
+  securityFindings?: number;
+  performanceIssues?: number;
+  healingSuggestions?: number;
 }
 
 export interface PipelineRun {

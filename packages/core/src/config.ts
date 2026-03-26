@@ -2,9 +2,9 @@ import { z } from 'zod';
 import type { AuroraConfig } from './types/index.js';
 
 const ConfigSchema = z.object({
-  anthropicApiKey: z.string().default(() => process.env['ANTHROPIC_API_KEY'] ?? ''),
+  anthropicApiKey: z.string().min(1, 'ANTHROPIC_API_KEY is required').default(() => process.env['ANTHROPIC_API_KEY'] ?? ''),
   model: z.string().default(() => process.env['AURORA_MODEL'] ?? 'claude-opus-4-6'),
-  maxTokens: z.coerce.number().default(8192),
+  maxTokens: z.coerce.number().int().positive().default(8192),
   temperature: z.coerce.number().min(0).max(1).default(0.2),
   memory: z
     .object({
@@ -15,7 +15,7 @@ const ConfigSchema = z.object({
     .default({}),
   dashboard: z
     .object({
-      port: z.coerce.number().default(() => Number(process.env['DASHBOARD_PORT'] ?? 3001)),
+      port: z.coerce.number().int().min(1).max(65535).default(() => Number(process.env['DASHBOARD_PORT'] ?? 3001)),
       host: z.string().default(() => process.env['DASHBOARD_HOST'] ?? '0.0.0.0'),
       corsOrigins: z
         .array(z.string())

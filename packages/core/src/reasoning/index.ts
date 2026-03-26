@@ -2,13 +2,17 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { AuroraConfig, ReasoningResult } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 
+const DEFAULT_TIMEOUT_MS = 30_000;
+
 export class ReasoningEngine {
   private client: Anthropic;
   private config: AuroraConfig;
+  private readonly timeoutMs: number;
   private readonly log = logger.child('reasoning');
 
-  constructor(config: AuroraConfig) {
+  constructor(config: AuroraConfig, timeoutMs = DEFAULT_TIMEOUT_MS) {
     this.config = config;
+    this.timeoutMs = timeoutMs;
     this.client = new Anthropic({ apiKey: config.anthropicApiKey });
   }
 
@@ -30,7 +34,7 @@ Always structure your response as JSON with this format:
     ].filter(Boolean).join('\n');
 
     try {
-      const response = await this.client.messages.create({
+      const response = await this.callWithTimeout({
         model: this.config.model,
         max_tokens: this.config.maxTokens,
         temperature: this.config.temperature,
@@ -54,8 +58,8 @@ Always structure your response as JSON with this format:
             alternatives: parsed.alternatives ?? [],
           };
         }
-      } catch {
-        // Fall through to default
+      } catch (parseErr) {
+        this.log.warn('Failed to parse JSON from reasoning response', { error: parseErr });
       }
 
       return {
@@ -65,6 +69,10 @@ Always structure your response as JSON with this format:
         alternatives: [],
       };
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        this.log.warn(`Reasoning timed out after ${this.timeoutMs}ms, returning degraded result`);
+        return { steps: [], conclusion: 'Reasoning timed out', confidence: 0, alternatives: [] };
+      }
       this.log.error('Reasoning failed', err);
       return { steps: [], conclusion: 'Reasoning failed', confidence: 0, alternatives: [] };
     }
@@ -94,5 +102,22 @@ Always structure your response as JSON with this format:
       context,
     );
     return result.conclusion;
+  }
+
+  // ─── Internal ──────────────────────────────────────────────────────────────
+
+  private async callWithTimeout(
+    params: Anthropic.MessageCreateParamsNonStreaming,
+  ): Promise<Anthropic.Message> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
+
+    try {
+      return await this.client.messages.create(params, {
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 }

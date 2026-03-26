@@ -13,11 +13,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
+  const body = (await request.json()) as Record<string, unknown>;
   const run = {
     id: crypto.randomUUID(),
-    intent: body.intent ?? 'Manual run',
-    targetPath: body.targetPath ?? '.',
+    intent: (body.intent as string | undefined) ?? 'Manual run',
+    targetPath: (body.targetPath as string | undefined) ?? '.',
     status: 'running',
     timestamp: new Date().toISOString(),
   };
