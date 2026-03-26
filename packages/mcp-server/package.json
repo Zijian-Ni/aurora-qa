@@ -1,7 +1,7 @@
 {
   "name": "@aurora-qa/mcp-server",
-  "version": "1.0.0",
-  "description": "Aurora QA MCP server — exposes QA tools via Model Context Protocol",
+  "version": "1.2.1",
+  "description": "Aurora QA MCP server \u2014 exposes QA tools via Model Context Protocol",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {

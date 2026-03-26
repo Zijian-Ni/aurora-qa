@@ -1,7 +1,7 @@
 {
   "name": "@aurora-qa/core",
-  "version": "1.0.0",
-  "description": "Aurora QA core — agents, orchestrator, memory system",
+  "version": "1.2.1",
+  "description": "Aurora QA core \u2014 agents, orchestrator, memory system",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
