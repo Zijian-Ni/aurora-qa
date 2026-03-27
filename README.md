@@ -33,33 +33,33 @@ The platform integrates with your development workflow via the Model Context Pro
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                     Aurora QA Platform                         │
+│                     Aurora QA Platform                       │
 ├──────────────────────────────────────────────────────────────┤
-│                                                                │
-│  ┌─────────────────── Orchestrator ────────────────────────┐  │
-│  │                                                          │  │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌──────────────────┐  │  │
-│  │  │ TestGen     │ │ TestRunner  │ │ BugAnalyzer      │  │  │
-│  │  │ Agent       │ │ Agent       │ │ Agent            │  │  │
-│  │  └─────────────┘ └─────────────┘ └──────────────────┘  │  │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌──────────────────┐  │  │
-│  │  │ Coverage    │ │ Review      │ │ Healer           │  │  │
-│  │  │ Agent       │ │ Agent       │ │ Agent            │  │  │
-│  │  └─────────────┘ └─────────────┘ └──────────────────┘  │  │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌──────────────────┐  │  │
-│  │  │ Security    │ │ Performance │ │ Accessibility    │  │  │
-│  │  │ Agent       │ │ Agent       │ │ Agent            │  │  │
-│  │  └─────────────┘ └─────────────┘ └──────────────────┘  │  │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌──────────────────┐  │  │
-│  │  │ Chaos       │ │ Mutation    │ │ Contract         │  │  │
-│  │  │ Agent       │ │ Agent       │ │ Agent            │  │  │
-│  │  └─────────────┘ └─────────────┘ └──────────────────┘  │  │
-│  │  ┌─────────────┐                                        │  │
-│  │  │ Playwright  │    Pipeline Runner                     │  │
-│  │  │ Agent       │    (topological execution)             │  │
-│  │  └─────────────┘                                        │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                │
+│                                                              │
+│  ┌─────────────────── Orchestrator ────────────────────────┐ │
+│  │                                                         │ │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌──────────────────┐   │ │
+│  │  │ TestGen     │ │ TestRunner  │ │ BugAnalyzer      │   │ │
+│  │  │ Agent       │ │ Agent       │ │ Agent            │   │ │
+│  │  └─────────────┘ └─────────────┘ └──────────────────┘   │ │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌──────────────────┐   │ │
+│  │  │ Coverage    │ │ Review      │ │ Healer           │   │ │
+│  │  │ Agent       │ │ Agent       │ │ Agent            │   │ │
+│  │  └─────────────┘ └─────────────┘ └──────────────────┘   │ │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌──────────────────┐   │ │
+│  │  │ Security    │ │ Performance │ │ Accessibility    │   │ │
+│  │  │ Agent       │ │ Agent       │ │ Agent            │   │ │
+│  │  └─────────────┘ └─────────────┘ └──────────────────┘   │ │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌──────────────────┐   │ │
+│  │  │ Chaos       │ │ Mutation    │ │ Contract         │   │ │
+│  │  │ Agent       │ │ Agent       │ │ Agent            │   │ │
+│  │  └─────────────┘ └─────────────┘ └──────────────────┘   │ │
+│  │  ┌─────────────┐                                        │ │
+│  │  │ Playwright  │    Pipeline Runner                     │ │
+│  │  │ Agent       │    (topological execution)             │ │
+│  │  └─────────────┘                                        │ │
+│  └─────────────────────────────────────────────────────────┘ │
+│                                                              │
 │  ┌─── Memory Layer ───┐  ┌── Intelligence ──┐  ┌── Events ──┐│
 │  │ VectorStore (TF-IDF│  │ ReasoningEngine  │  │ EventStream││
 │  │ KnowledgeBase      │  │ TestPrioritizer  │  │ (SSE)      ││
@@ -67,9 +67,9 @@ The platform integrates with your development workflow via the Model Context Pro
 │  │ PatternLibrary     │  ┌── Metrics ────────┐               │
 │  │ WorkingMemory      │  │ MetricsCollector  │               │
 │  └────────────────────┘  │ (Prometheus fmt)  │               │
-│                           └──────────────────┘               │
+│                          └───────────────────┘               │
 ├──────────────────────────────────────────────────────────────┤
-│  MCP Server (12 tools)  │  Dashboard (Next.js 15)  │  CI/CD │
+│  MCP Server (12 tools)  │  Dashboard (Next.js 15)  │  CI/CD  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
